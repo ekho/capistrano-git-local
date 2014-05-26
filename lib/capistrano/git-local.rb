@@ -8,17 +8,19 @@ namespace :git_local do
 
   desc 'Check that the repository is reachable'
   task :check do |task|
-    run_locally do debug "Task #{task}" end
+    run_locally do debug "Task #{task} start" end
 
     fetch(:branch)
     run_locally do
       exit 1 unless strategy.check
     end
+
+    run_locally do debug "Task #{task} finish" end
   end
 
   desc 'Clone the repo to the cache'
   task :clone do |task|
-    run_locally do debug "Task #{task}" end
+    run_locally do debug "Task #{task} start" end
 
     run_locally do
       if strategy.test
@@ -29,21 +31,25 @@ namespace :git_local do
         end
       end
     end
+
+    run_locally do debug "Task #{task} finish" end
   end
 
   desc 'Update the repo mirror to reflect the origin state'
   task :update => :clone do |task|
-    run_locally do debug "Task #{task}" end
+    run_locally do debug "Task #{task} start" end
     run_locally do
       within repo_path do
         strategy.update
       end
     end
+
+    run_locally do debug "Task #{task} finish" end
   end
 
   desc 'Copy repo to releases'
   task :create_release => :update do |task|
-    run_locally do debug "Task #{task}" end
+    run_locally do debug "Task #{task} start" end
 
     run_locally do
       within repo_path do
@@ -51,17 +57,21 @@ namespace :git_local do
         strategy.release
       end
     end
+
+    run_locally do debug "Task #{task} finish" end
   end
 
   desc 'Determine the revision that will be deployed'
   task :set_current_revision do |task|
-    run_locally do debug "Task #{task}" end
+    run_locally do debug "Task #{task} start" end
 
     run_locally do
       within repo_path do
         set :current_revision, strategy.fetch_revision
       end
     end
+
+    run_locally do debug "Task #{task} finish" end
   end
 
 end
