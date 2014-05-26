@@ -1,0 +1,67 @@
+require 'capistrano/git'
+
+namespace :git_local do
+
+  def strategy
+    @strategy ||= Capistrano::Git.new(self, fetch(:git_strategy, Capistrano::Git::DefaultStrategy))
+  end
+
+  desc 'Check that the repository is reachable'
+  task :check do |task|
+    run_locally do debug "Task #{task}" end
+
+    fetch(:branch)
+    run_locally do
+      exit 1 unless strategy.check
+    end
+  end
+
+  desc 'Clone the repo to the cache'
+  task :clone do |task|
+    run_locally do debug "Task #{task}" end
+
+    run_locally do
+      if strategy.test
+        info t(:mirror_exists, at: repo_path)
+      else
+        within deploy_path do
+          strategy.clone
+        end
+      end
+    end
+  end
+
+  desc 'Update the repo mirror to reflect the origin state'
+  task :update => :clone do |task|
+    run_locally do debug "Task #{task}" end
+    run_locally do
+      within repo_path do
+        strategy.update
+      end
+    end
+  end
+
+  desc 'Copy repo to releases'
+  task :create_release => :update do |task|
+    run_locally do debug "Task #{task}" end
+
+    run_locally do
+      within repo_path do
+        execute :mkdir, '-p', release_path
+        strategy.release
+      end
+    end
+  end
+
+  desc 'Determine the revision that will be deployed'
+  task :set_current_revision do |task|
+    run_locally do debug "Task #{task}" end
+
+    run_locally do
+      within repo_path do
+        set :current_revision, strategy.fetch_revision
+      end
+    end
+  end
+
+end
