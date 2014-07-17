@@ -6,6 +6,14 @@ namespace :git_local do
     @strategy ||= Capistrano::Git.new(self, fetch(:git_strategy, Capistrano::Git::DefaultStrategy))
   end
 
+  def test_remote
+    remote = ''
+    within repo_path do
+      remote = capture(:git, 'remote', '-v').split("\n").select{ |i| i[/\(fetch\)$/] }[0].gsub(/^origin\s+(\S+)\s+\(fetch\)$/, '\1')
+    end
+    remote == repo_url
+  end
+
   desc 'Check that the repository is reachable'
   task :check do |task|
     run_locally do debug "Task #{task} start" end
@@ -23,10 +31,11 @@ namespace :git_local do
     run_locally do debug "Task #{task} start" end
 
     run_locally do
-      if strategy.test
+      if strategy.test && test_remote
         info t(:mirror_exists, at: repo_path)
       else
         within deploy_path do
+          execute :rm, '-rf', repo_path if test :test, '-d', repo_path
           strategy.clone
         end
       end
