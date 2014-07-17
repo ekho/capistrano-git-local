@@ -18,7 +18,6 @@ namespace :git_local do
   task :check do |task|
     run_locally do debug "Task #{task} start" end
 
-    fetch(:branch)
     run_locally do
       exit 1 unless strategy.check
     end
