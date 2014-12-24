@@ -75,7 +75,7 @@ namespace :git_local do
 
     run_locally do
       within repo_path do
-        set :current_revision, strategy.fetch_revision
+        set :current_revision, strategy.fetch_revision.strip
       end
     end
 
