@@ -15,7 +15,7 @@ require 'jeweler'
 Jeweler::Tasks.new do |gem|
   # gem is a Gem::Specification... see http://guides.rubygems.org/specification-reference/ for more options
   gem.name = "capistrano-git-local"
-  gem.homepage = "http://github.com/i-ekho/capistrano-git-local"
+  gem.homepage = "http://github.com/ekho/capistrano-git-local"
   gem.license = "MIT"
   gem.summary = %Q{Operate with git locally}
   gem.description = %Q{Git scm which works on local host}
